@@ -143,7 +143,7 @@ database, song_names = get_database()
 
 # Sidebar
 with st.sidebar:
-    st.markdown("### Settings")
+    st.markdown("Settings")
     mode = st.radio("Mode", ["Single Clip", "Batch Mode"],
                     help="Single-clip shows visualisations; batch processes multiple files.")
     st.markdown("---")
@@ -186,7 +186,7 @@ if mode == "Single Clip":
             # Result card 
             st.markdown(f"""
             <div class="result-card">
-                <h2>🎯 Match Found!</h2>
+                <h2>Match Found!</h2>
                 <div class="song-name">{match_name}</div>
                 <div class="confidence">Confidence score: {best_count} matching hash offsets</div>
             </div>
@@ -201,7 +201,7 @@ if mode == "Single Clip":
             col1, col2 = st.columns(2)
 
             with col1:
-                st.markdown("#### Spectrogram")
+                st.markdown("Spectrogram")
                 fig1, ax1 = plt.subplots(figsize=(8, 4))
                 fig1.patch.set_facecolor("#1a1a2e")
                 ax1.set_facecolor("#1a1a2e")
@@ -218,7 +218,7 @@ if mode == "Single Clip":
                 plt.close(fig1)
 
             with col2:
-                st.markdown("#### Constellation Map")
+                st.markdown("Constellation Map")
                 fig2, ax2 = plt.subplots(figsize=(8, 4))
                 fig2.patch.set_facecolor("#1a1a2e")
                 ax2.set_facecolor("#1a1a2e")
@@ -238,7 +238,7 @@ if mode == "Single Clip":
                 plt.close(fig2)
 
             # Offset histogram 
-            st.markdown("#### Offset Histogram (Top Matches)")
+            st.markdown("Offset Histogram (Top Matches)")
             # Show histograms for top-3 songs by best offset count
             scored = []
             for sid, oc in offset_counts.items():
@@ -282,7 +282,7 @@ if mode == "Single Clip":
 
 # Batch mode
 else:
-    st.markdown("### Batch Mode")
+    st.markdown("Batch Mode")
     st.markdown("Upload multiple audio clips. The app will identify each and "
                 "produce a `results.csv` with columns `filename` and `prediction`.")
 
@@ -316,7 +316,7 @@ else:
         progress.empty()
 
         # Display results
-        st.markdown("### Results")
+        st.markdown("Results")
         for r in results:
             st.markdown(f"""
             <div class="batch-row">
