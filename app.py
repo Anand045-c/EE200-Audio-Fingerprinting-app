@@ -143,14 +143,14 @@ database, song_names = get_database()
 
 # Sidebar
 with st.sidebar:
-    st.markdown("### ⚙️ Settings")
-    mode = st.radio("Mode", ["🎤 Single Clip", "📦 Batch Mode"],
+    st.markdown("### Settings")
+    mode = st.radio("Mode", ["Single Clip", "Batch Mode"],
                     help="Single-clip shows visualisations; batch processes multiple files.")
     st.markdown("---")
     st.markdown(f"**Database**: {len(song_names)} songs indexed")
     st.markdown(f"**Unique hashes**: {len(database):,}")
     st.markdown("---")
-    st.markdown("### 📚 Song Library")
+    st.markdown("###Song Library")
     for sid in sorted(song_names, key=lambda k: song_names[k]):
         st.markdown(f"• {song_names[sid]}")
 
@@ -164,7 +164,7 @@ st.markdown("""
 
 
 # Single-clip mode
-if mode == "🎤 Single Clip":
+if mode == "Single Clip":
     uploaded = st.file_uploader("Upload a query clip (MP3 or WAV)", type=["mp3", "wav"],
                                 key="single_upload")
     if uploaded is not None:
@@ -175,7 +175,7 @@ if mode == "🎤 Single Clip":
             tmp_path = tmp.name
 
         try:
-            with st.spinner("🔍 Analysing audio..."):
+            with st.spinner("Analysing audio..."):
                 y, sr = load_audio(tmp_path)
                 S_db, freqs, times = compute_spectrogram(y, sr=sr)
                 peaks = find_peaks(S_db)
@@ -196,7 +196,7 @@ if mode == "🎤 Single Clip":
             st.audio(tmp_path)
 
             # Visualisations 
-            st.markdown("### 📊 Intermediate Steps")
+            st.markdown("### Intermediate Steps")
 
             col1, col2 = st.columns(2)
 
@@ -282,7 +282,7 @@ if mode == "🎤 Single Clip":
 
 # Batch mode
 else:
-    st.markdown("### 📦 Batch Mode")
+    st.markdown("### Batch Mode")
     st.markdown("Upload multiple audio clips. The app will identify each and "
                 "produce a `results.csv` with columns `filename` and `prediction`.")
 
@@ -316,7 +316,7 @@ else:
         progress.empty()
 
         # Display results
-        st.markdown("### 📋 Results")
+        st.markdown("### Results")
         for r in results:
             st.markdown(f"""
             <div class="batch-row">
@@ -333,7 +333,7 @@ else:
         csv_bytes = csv_buffer.getvalue().encode("utf-8")
 
         st.download_button(
-            label="⬇️ Download results.csv",
+            label="Download results.csv",
             data=csv_bytes,
             file_name="results.csv",
             mime="text/csv",
