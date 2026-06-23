@@ -149,7 +149,7 @@ with st.sidebar:
 st.markdown("""
 <div class="hero-header">
     <h1>EE200: Audio Fingerprinting</h1>
-    <p>Upload an audio clip and identify the song in seconds</p>
+    <p>Upload an audio clip and identify the song</p>
 </div>
 """, unsafe_allow_html=True)
 
