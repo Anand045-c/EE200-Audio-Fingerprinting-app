@@ -1,12 +1,3 @@
-"""
-app.py — Streamlit Web App for Audio Fingerprinting (Q3B)
-==========================================================
-Two modes:
-  • Single-clip mode  — upload a query clip, see spectrogram, constellation,
-                         offset histogram, and the identified song.
-  • Batch mode        — upload multiple clips, get results.csv download.
-"""
-
 import os
 import io
 import csv
@@ -130,7 +121,7 @@ SONG_DIR = os.path.join(SCRIPT_DIR, "Song database")
 DB_PATH = os.path.join(SCRIPT_DIR, "fingerprint_db.pkl")
 
 
-@st.cache_resource(show_spinner="🔨 Building fingerprint database (first run only)...")
+@st.cache_resource(show_spinner="Building fingerprint database (first run only)...")
 def get_database():
     """Load or build the fingerprint database."""
     if os.path.exists(DB_PATH):
@@ -147,10 +138,10 @@ with st.sidebar:
     mode = st.radio("Mode", ["Single Clip", "Batch Mode"],
                     help="Single-clip shows visualisations; batch processes multiple files.")
     st.markdown("---")
-    st.markdown(f"**Database**: {len(song_names)} songs indexed")
-    st.markdown(f"**Unique hashes**: {len(database):,}")
+    st.markdown(f"Database: {len(song_names)} songs indexed")
+    st.markdown(f"Unique hashes: {len(database):,}")
     st.markdown("---")
-    st.markdown("###Song Library")
+    st.markdown("Song Library")
     for sid in sorted(song_names, key=lambda k: song_names[k]):
         st.markdown(f"• {song_names[sid]}")
 
