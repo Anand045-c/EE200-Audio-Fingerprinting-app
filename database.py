@@ -1,8 +1,5 @@
 """
-database.py — Fingerprint Database Manager
-============================================
-Indexes all songs in a directory into a fingerprint hash database,
-and provides load/save functionality via pickle.
+database.py — Fingerprint Db
 """
 
 import os
@@ -21,14 +18,6 @@ def build_database(song_dir, db_path=None,
                    sr=DEFAULT_SR, n_fft=DEFAULT_N_FFT, hop_length=DEFAULT_HOP,
                    neighborhood_size=10, amp_min=-55,
                    fan_out=15, verbose=True):
-    """
-    Scan *song_dir* for .mp3 files, compute fingerprints, and store them.
-
-    Returns
-    -------
-    database   : dict  hash → [(song_id, offset), ...]
-    song_names : dict  song_id → song name (filename without extension)
-    """
     if db_path is None:
         db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), DB_FILENAME)
 
@@ -65,7 +54,6 @@ def build_database(song_dir, db_path=None,
         print(f"\n  Database built in {elapsed:.1f}s")
         print(f"  {len(song_names)} songs  |  {len(database):,} unique hashes  |  {total_entries:,} entries")
 
-    # Persist
     data = {"database": database, "song_names": song_names}
     with open(db_path, "wb") as f:
         pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
@@ -87,15 +75,7 @@ def load_database(db_path=None):
 def identify_clip(clip_path, database, song_names,
                   sr=DEFAULT_SR, n_fft=DEFAULT_N_FFT, hop_length=DEFAULT_HOP,
                   neighborhood_size=10, amp_min=-55, fan_out=15):
-    """
-    Convenience: load a query clip, fingerprint it, and return the best match.
-
-    Returns
-    -------
-    match_name    : str or None
-    match_count   : int
-    offset_counts : dict
-    """
+                      
     from fingerprint import match_hashes
 
     y, _ = load_audio(clip_path, sr=sr)
@@ -109,7 +89,6 @@ def identify_clip(clip_path, database, song_names,
     return match_name, best_count, offset_counts
 
 
-# CLI 
 if __name__ == "__main__":
     import sys
     script_dir = os.path.dirname(os.path.abspath(__file__))
