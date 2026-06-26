@@ -1,39 +1,31 @@
 """
-fingerprint.py — Core Audio Fingerprinting Library
-====================================================
-Implements a Shazam-like audio fingerprinting system:
-  1. Load audio → mono, resampled
-  2. Compute STFT spectrogram
-  3. Detect local maxima (peaks) in the spectrogram
-  4. Build constellation map
-  5. Generate paired hashes (anchor + target peak)
-  6. Match query hashes against a database via offset histogram
+fingerprint.py — Core Lib
 """
 
 import numpy as np
 import librosa
 from scipy.ndimage import maximum_filter, generate_binary_structure, iterate_structure
 
-# Default Parameters 
+# Defaul
 DEFAULT_SR = 22050
 DEFAULT_N_FFT = 1024
 DEFAULT_HOP = 512
-PEAK_NEIGHBORHOOD_SIZE = 10          # half-width of the local-max filter
-AMP_MIN_DB = -55                     # dB threshold for peak detection
-FAN_OUT = 15                         # target peaks per anchor
-MIN_TIME_DELTA = 1                   # min frame gap for pairing
-MAX_TIME_DELTA = 50                  # max frame gap for pairing
-MAX_FREQ_BIN = 512                   # ignore bins above this (high-freq cutoff)
+PEAK_NEIGHBORHOOD_SIZE = 10  
+AMP_MIN_DB = -55             
+FAN_OUT = 15                         
+MIN_TIME_DELTA = 1                  
+MAX_TIME_DELTA = 50                 
+MAX_FREQ_BIN = 512                   
 
 
-# Audio Loading 
+# Audio Load 
 def load_audio(filepath, sr=DEFAULT_SR):
     """Load an audio file, convert to mono, resample to *sr*."""
     y, sr_out = librosa.load(filepath, sr=sr, mono=True)
     return y, sr_out
 
 
-# Spectrogram 
+
 def compute_spectrogram(y, sr=DEFAULT_SR, n_fft=DEFAULT_N_FFT, hop_length=DEFAULT_HOP):
     """
     Compute the magnitude STFT spectrogram in dB.
@@ -51,20 +43,7 @@ def compute_spectrogram(y, sr=DEFAULT_SR, n_fft=DEFAULT_N_FFT, hop_length=DEFAUL
     return S_db, freqs, times
 
 
-# Peak Detection 
 def find_peaks(S_db, neighborhood_size=PEAK_NEIGHBORHOOD_SIZE, amp_min=AMP_MIN_DB):
-    """
-    Detect spectral peaks (local maxima) in the spectrogram.
-
-    A point is a peak if
-      1. it equals the maximum within a (2*neighborhood_size+1)² neighbourhood, AND
-      2. its amplitude exceeds *amp_min* dB.
-
-    Returns
-    -------
-    peaks : ndarray of shape (N, 2) — each row is (freq_bin, time_frame)
-    """
-    # Build a square footprint
     struct = generate_binary_structure(2, 1)
     neighborhood = iterate_structure(struct, neighborhood_size)
 
@@ -76,18 +55,10 @@ def find_peaks(S_db, neighborhood_size=PEAK_NEIGHBORHOOD_SIZE, amp_min=AMP_MIN_D
     return peaks
 
 
-#  Fingerprint Hash Generation 
+#  Fingerprint Has
 def generate_hashes(peaks, fan_out=FAN_OUT,
                     min_dt=MIN_TIME_DELTA, max_dt=MAX_TIME_DELTA):
-    """
-    Create (hash, anchor_time) pairs from constellation peaks.
-
-    For each anchor peak (f₁, t₁) we look forward in time and pair it
-    with up to *fan_out* target peaks (f₂, t₂) where Δt ∈ [min_dt, max_dt].
-
-    hash = (f₁, f₂, Δt)   — a compact descriptor
-    """
-    # Sort by time so we can scan forward
+   
     idx = np.argsort(peaks[:, 1])
     peaks_sorted = peaks[idx]
 
@@ -111,35 +82,15 @@ def generate_hashes(peaks, fan_out=FAN_OUT,
 
 
 def generate_single_peak_hashes(peaks):
-    """
-    Generate hashes using individual peaks only (no pairing).
-    Each hash is simply the frequency bin, paired with the time offset.
-    Used for comparison experiments.
-
-    hash = (freq_bin,)
-    """
     hashes = []
     for freq_bin, time_frame in peaks:
         hashes.append(((int(freq_bin),), int(time_frame)))
     return hashes
 
 
-# Matching 
+# Matchin
 def match_hashes(query_hashes, database):
-    """
-    Match query hashes against the fingerprint database.
-
-    Parameters
-    ----------
-    query_hashes : list of (hash, query_time) tuples
-    database     : dict mapping hash → list of (song_id, db_time)
-
-    Returns
-    -------
-    best_song_id : int or None
-    best_count   : int          — height of tallest histogram peak
-    offset_counts: dict         — {song_id: {offset: count, ...}, ...}
-    """
+ 
     offset_counts = {}
 
     for h, q_time in query_hashes:
@@ -151,7 +102,6 @@ def match_hashes(query_hashes, database):
                 oc = offset_counts[song_id]
                 oc[offset] = oc.get(offset, 0) + 1
 
-    # Determine the best match
     best_song_id = None
     best_count = 0
     for song_id, offsets in offset_counts.items():
@@ -172,7 +122,7 @@ def get_offset_histogram(offset_counts_for_song):
     return np.array(offsets), np.array(counts)
 
 
-# Audio Manipulation Utilities 
+# Audio Manipulate
 def add_noise(y, snr_db=10):
     """Add white Gaussian noise at the specified SNR (dB)."""
     rms_signal = np.sqrt(np.mean(y ** 2))
